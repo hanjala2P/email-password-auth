@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../utils/firebase.init";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -14,7 +14,9 @@ const Register = () => {
     const email = event.target.email.value;
     const password = event.target.password.value;
     const terms = event.target.terms.checked;
-    console.log("form submited", email, password,terms);
+    const name =event.target.name.value;
+    const photo =event.target.photo.value;
+    console.log("form submited", email, password,terms,name,photo);
 
     //    const passwordPatterns = /^.{6,}$/;
     //    if(passwordPatterns.test(password)){
@@ -46,6 +48,22 @@ const Register = () => {
         console.log("after creat a new user", result.user);
         setSuccess(true);
         event.target.reset();
+
+        const profile ={
+          displayName:name,
+          photoURL:photo,
+        }
+        updateProfile(result.user,profile)
+        .then(()=>{})
+        .catch(error => {
+          console.log('error happen while updating profile',error.message);
+        })
+        // send verification email
+
+        sendEmailVerification(result.user)
+        .then(()=> {
+          alert('Please login your gamil and verify ! ')
+        })
       })
       .catch((error) => {
         console.log("error happen : ", error.message);
@@ -68,6 +86,21 @@ const Register = () => {
             <div className="card-body">
               <form onSubmit={handleRegister}>
                 <fieldset className="fieldset">
+                  <label className="label">Name</label>
+                  <input
+                    name="name"
+                    type="text"
+                    className="input"
+                    placeholder="Name"
+                  />
+                  {/* photo */}
+                  <label className="label">Photo</label>
+                  <input
+                    name="photo"
+                    type="text"
+                    className="input"
+                    placeholder="Photo URL"
+                  />
                   <label className="label">Email</label>
                   <input
                     name="email"
